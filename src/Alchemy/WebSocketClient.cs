@@ -89,7 +89,7 @@ namespace Alchemy
         {
             if (_client != null) return;
 
-            _context = new Context(null, null);
+			_context = new Context(null, null);
             _context.BufferSize = 512;
             _context.UserContext.DataFrame = new DataFrame();
             _context.UserContext.SetOnConnect(OnConnect);
@@ -97,7 +97,7 @@ namespace Alchemy
             _context.UserContext.SetOnDisconnect(OnDisconnect);
             _context.UserContext.SetOnSend(OnSend);
             _context.UserContext.SetOnReceive(OnReceive);
-            _context.UserContext.Data = data;
+			//     _context.UserContext.Data = data;
 
             try
             {

@@ -6,10 +6,11 @@ using System.Net.Sockets;
 using System.Threading;
 using Alchemy.Classes;
 using Alchemy.Handlers;
+using System.Linq;
 
 namespace Alchemy
 {
-    public delegate void OnEventDelegate(UserContext context);
+	public delegate void OnEventDelegate(IUserContext context);
 
     /// <summary>
     /// The Main WebSocket Server
@@ -111,9 +112,13 @@ namespace Alchemy
         /// <summary>
         /// Gets the client count.
         /// </summary>
-        public int Clients
+		public IEnumerable<IUserContext> Clients()
         {
-            get { return CurrentConnections.Count; }
+			return CurrentConnections.Select (item => item.UserContext); //.ToList ();
+//			foreach (var item in client)
+//			{
+//				yield return item;
+//			}
         }
 
         /// <summary>
@@ -156,10 +161,15 @@ namespace Alchemy
         private string _destination = String.Empty;
         private string _origin = String.Empty;
 
+		public Type UserContextType { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="WebSocketServer"/> class.
         /// </summary>
-        public WebSocketServer(int listenPort = 0, IPAddress listenAddress = null) : base(listenPort, listenAddress) {}
+		public WebSocketServer(int listenPort, IPAddress listenAddress, Type UserContextType) : base(listenPort, listenAddress)
+		{
+			UserContextType = this.UserContextType;
+		}
 
         /// <summary>
         /// Gets or sets the origin host.
@@ -230,7 +240,7 @@ namespace Alchemy
         protected override void OnRunClient(object data)
         {
             var connection = (TcpClient)data;
-            var context = new Context(this, connection);
+			var context = new Context(this, connection, UserContextType);
 
             context.UserContext.ClientAddress = context.Connection.Client.RemoteEndPoint;
             context.UserContext.SetOnConnect(OnConnect);
@@ -318,5 +328,11 @@ namespace Alchemy
         {
             Handler.Shutdown.Cancel();
         }
+
+		public int ClientCount
+		{
+			get { return CurrentConnections.Count; }
+		}
+
     }
 }

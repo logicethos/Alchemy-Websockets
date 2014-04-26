@@ -16,7 +16,7 @@ namespace Alchemy.Classes
         /// <summary>
         /// The exported version of this context.
         /// </summary>
-        public readonly UserContext UserContext;
+		public readonly IUserContext UserContext;
 
         /// <summary>
         /// The buffer used for accepting raw data from the socket.
@@ -88,12 +88,21 @@ namespace Alchemy.Classes
         /// <summary>
         /// Initializes a new instance of the <see cref="Context"/> class.
         /// </summary>
-        public Context(WebSocketServer server, TcpClient connection)
+		public Context(WebSocketServer server, TcpClient connection, Type UserContextType = null)
         {
             Server = server;
             Connection = connection;
             Buffer = new byte[_bufferSize];
-            UserContext = new UserContext(this);
+
+			if (UserContextType != null)
+			{
+				UserContext = (IUserContext)Activator.CreateInstance (UserContextType, this);
+			} else
+			{
+				UserContext = new UserContext(this);
+			}
+
+
             Cancellation = new CancellationTokenSource();
             Cancellation = CancellationTokenSource.CreateLinkedTokenSource
                           (Handler.Shutdown.Token, this.Cancellation.Token);

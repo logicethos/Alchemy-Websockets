@@ -7,7 +7,7 @@ namespace Alchemy.Classes
     /// <summary>
     /// Contains data we will export to the Event Delegates.
     /// </summary>
-    public class UserContext
+	public class UserContext : IUserContext
     {
         /// <summary>
         /// AQ Link to the parent User Context
@@ -17,17 +17,17 @@ namespace Alchemy.Classes
         /// <summary>
         /// The remote endpoint address.
         /// </summary>
-        public EndPoint ClientAddress;
+		public EndPoint ClientAddress { get; set; }
 
         /// <summary>
         /// User defined data. Can be anything.
         /// </summary>
-        public Object Data;
+		//     public Object Data;
 
         /// <summary>
         /// The data Frame that this client is currently processing.
         /// </summary>
-        public DataFrame DataFrame;
+		public DataFrame DataFrame { get; set; }
 
         /// <summary>
         /// OnEvent Delegates specific to this connection.
@@ -42,17 +42,17 @@ namespace Alchemy.Classes
         /// <summary>
         /// The latest exception. Usable when OnDisconnect is called.
         /// </summary>/
-        public Exception LatestException;
+		public Exception LatestException { get; set; }
 
         /// <summary>
         /// The type of connection this is
         /// </summary>
-        public Protocol Protocol = Protocol.None;
+		public Protocol Protocol { get; set; }
 
         /// <summary>
         /// The path of this request.
         /// </summary>
-        public string RequestPath = "/";
+		public string RequestPath { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserContext"/> class.
@@ -61,6 +61,8 @@ namespace Alchemy.Classes
         public UserContext(Context context)
         {
             Context = context;
+			Protocol = Protocol.None;
+			RequestPath = "/";
         }
 
         /// <summary>
@@ -83,7 +85,7 @@ namespace Alchemy.Classes
         /// <summary>
         /// Called when [connect].
         /// </summary>
-        public void OnConnect()
+		public virtual void OnConnect()
         {
             OnConnectDelegate(this);
         }
@@ -91,7 +93,7 @@ namespace Alchemy.Classes
         /// <summary>
         /// Called when [connected].
         /// </summary>
-        public void OnConnected()
+		public virtual void OnConnected()
         {
             OnConnectedDelegate(this);
         }
@@ -99,7 +101,7 @@ namespace Alchemy.Classes
         /// <summary>
         /// Called when [disconnect].
         /// </summary>
-        public void OnDisconnect()
+		public virtual void OnDisconnect()
         {
             Context.Connected = false;
             OnDisconnectDelegate(this);
@@ -108,7 +110,7 @@ namespace Alchemy.Classes
         /// <summary>
         /// Called when [send].
         /// </summary>
-        public void OnSend()
+		public virtual void OnSend()
         {
             OnSendDelegate(this);
         }
@@ -116,7 +118,7 @@ namespace Alchemy.Classes
         /// <summary>
         /// Called when [receive].
         /// </summary>
-        public void OnReceive()
+		public virtual void OnReceive()
         {
             OnReceiveDelegate(this);
         }
@@ -125,7 +127,7 @@ namespace Alchemy.Classes
         /// Sets the on connect event.
         /// </summary>
         /// <param name="aDelegate">The Event Delegate.</param>
-        public void SetOnConnect(OnEventDelegate aDelegate)
+		public virtual void SetOnConnect(OnEventDelegate aDelegate)
         {
             OnConnectDelegate = aDelegate;
         }
@@ -134,7 +136,7 @@ namespace Alchemy.Classes
         /// Sets the on connected event.
         /// </summary>
         /// <param name="aDelegate">The Event Delegate.</param>
-        public void SetOnConnected(OnEventDelegate aDelegate)
+		public virtual void SetOnConnected(OnEventDelegate aDelegate)
         {
             OnConnectedDelegate = aDelegate;
         }
@@ -143,7 +145,7 @@ namespace Alchemy.Classes
         /// Sets the on disconnect event.
         /// </summary>
         /// <param name="aDelegate">The Event Delegate.</param>
-        public void SetOnDisconnect(OnEventDelegate aDelegate)
+		public virtual void SetOnDisconnect(OnEventDelegate aDelegate)
         {
             OnDisconnectDelegate = aDelegate;
         }
@@ -152,7 +154,7 @@ namespace Alchemy.Classes
         /// Sets the on send event.
         /// </summary>
         /// <param name="aDelegate">The Event Delegate.</param>
-        public void SetOnSend(OnEventDelegate aDelegate)
+		public virtual void SetOnSend(OnEventDelegate aDelegate)
         {
             OnSendDelegate = aDelegate;
         }
@@ -161,7 +163,7 @@ namespace Alchemy.Classes
         /// Sets the on receive event.
         /// </summary>
         /// <param name="aDelegate">The Event Delegate.</param>
-        public void SetOnReceive(OnEventDelegate aDelegate)
+		public virtual void SetOnReceive(OnEventDelegate aDelegate)
         {
             OnReceiveDelegate = aDelegate;
         }
@@ -172,7 +174,7 @@ namespace Alchemy.Classes
         /// <param name="dataFrame">The data.</param>
         /// <param name="raw">Whether or not to send raw data</param>
         /// <param name="close">if set to <c>true</c> [close].</param>
-        public void Send(DataFrame dataFrame, bool raw = false, bool close = false)
+		public virtual void Send(DataFrame dataFrame, bool raw = false, bool close = false)
         {
             Context.Handler.Send(dataFrame, Context, raw, close);
         }
@@ -183,7 +185,7 @@ namespace Alchemy.Classes
         /// <param name="aString">The data.</param>
         /// <param name="raw">whether or not to send raw data</param>
         /// <param name="close">if set to <c>true</c> [close].</param>
-        public void Send(String aString, bool raw = false, bool close = false)
+		public virtual void Send(String aString, bool raw = false, bool close = false)
         {
             DataFrame dataFrame = DataFrame.CreateInstance();
             dataFrame.Append(aString);
@@ -196,12 +198,25 @@ namespace Alchemy.Classes
         /// <param name="someBytes">The data.</param>
         /// <param name="raw">whether or not to send raw data</param>
         /// <param name="close">if set to <c>true</c> [close].</param>
-        public void Send(byte[] someBytes, bool raw = false, bool close = false)
+		public virtual void Send(byte[] someBytes, bool raw = false, bool close = false)
         {
             DataFrame dataFrame = DataFrame.CreateInstance();
             dataFrame.IsByte = true;
             dataFrame.Append(someBytes);
             Context.Handler.Send(dataFrame, Context, raw, close);
         }
+
+		public virtual Boolean Connected
+		{
+			get { return Context.Connected; }
+		}
+
+
+		public virtual void Close()
+		{
+
+			Context.Disconnect ();
+		}
+
     }
 }
