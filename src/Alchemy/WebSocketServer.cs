@@ -110,15 +110,14 @@ namespace Alchemy
         }
 
         /// <summary>
-        /// Gets the client count.
+		/// Gets snapshot of the clients.
         /// </summary>
-		public IEnumerable<IUserContext> Clients()
+		public List<IUserContext> Clients()
         {
-			return CurrentConnections.Select (item => item.UserContext); //.ToList ();
-//			foreach (var item in client)
-//			{
-//				yield return item;
-//			}
+			lock (CurrentConnections)
+			{
+				return CurrentConnections.Select (item => item.UserContext).ToList ();
+			}
         }
 
         /// <summary>
@@ -168,7 +167,7 @@ namespace Alchemy
         /// </summary>
 		public WebSocketServer(int listenPort, IPAddress listenAddress, Type UserContextType) : base(listenPort, listenAddress)
 		{
-			UserContextType = this.UserContextType;
+			this.UserContextType = UserContextType;
 		}
 
         /// <summary>
