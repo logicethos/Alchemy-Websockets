@@ -104,7 +104,11 @@ namespace Alchemy
                 ReadyState = ReadyStates.CONNECTING;
                 _context.UserContext.OnConnect();
 
-                _client = new TcpClient();
+                _client = new TcpClient()
+				{ 
+					NoDelay = true,
+				};
+
                 _context.Connection = _client;
                 _connecting = true;
                 _client.BeginConnect(_host, _port, OnClientConnected, null);

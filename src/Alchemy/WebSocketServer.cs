@@ -120,6 +120,18 @@ namespace Alchemy
 			}
         }
 
+		/// <summary>
+		/// Gets snapshot of the clients. Filtered by Type
+		/// </summary>
+		public List<IUserContext> Clients<T>()
+		{
+			lock (CurrentConnections)
+			{
+				return CurrentConnections.Select (item => item.UserContext).Where(item => item is T).ToList ();
+			}
+		}
+
+
         /// <summary>
         /// This is the Flash Access Policy Server. It allows us to facilitate flash socket connections much more quickly in most cases.
         /// Don't mess with it through here. It's only public so we can access it later from all the IOCPs.
@@ -286,6 +298,7 @@ namespace Alchemy
                 _context.UserContext.LatestException = ex;
                 _context.Disconnect();
             }
+			catch {	} //disconnected.
         }
 
         void ReceiveEventArgs_Completed(object sender, SocketAsyncEventArgs e)

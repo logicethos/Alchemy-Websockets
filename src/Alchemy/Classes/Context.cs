@@ -113,6 +113,7 @@ namespace Alchemy.Classes
 
             if (connection != null)
             {
+				connection.NoDelay = true;
                 UserContext.ClientAddress = connection.Client.RemoteEndPoint;
             }
         }
@@ -165,8 +166,11 @@ namespace Alchemy.Classes
         /// </summary>
         public void Dispose()
         {
-            Connected = false;
-            UserContext.OnDisconnect();
+			if (Connected)
+			{
+				Connected = false;
+				UserContext.OnDisconnect ();
+			}
             
             // close client connection
             if (Connection != null)
@@ -192,8 +196,11 @@ namespace Alchemy.Classes
         public void Disconnect()
         {
             //logger.Debug("Disconnected in " + Environment.StackTrace);
-            Connected = false;
-            UserContext.OnDisconnect(); // 2014-01-16 added for Remact.Net
+			if (Connected)
+			{
+				Connected = false;
+				UserContext.OnDisconnect (); // 2014-01-16 added for Remact.Net
+			}
         }
 
         /// <summary>

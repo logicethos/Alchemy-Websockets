@@ -103,8 +103,11 @@ namespace Alchemy.Classes
         /// </summary>
 		public virtual void OnDisconnect()
         {
-            Context.Connected = false;
-            OnDisconnectDelegate(this);
+			if (Context.Connected)
+			{
+				Context.Connected = false;
+				OnDisconnectDelegate (this);
+			}
         }
 
         /// <summary>

@@ -84,6 +84,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TCPServer.cs" />
     <Compile Include="Classes\IUserContext.cs" />
+    <Compile Include="TCPClientSSL.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Alchemy.config">
